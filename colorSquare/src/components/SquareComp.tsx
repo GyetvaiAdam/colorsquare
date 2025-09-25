@@ -1,6 +1,20 @@
 import { useState} from "react";
 import BoxComponents from "./BoxComponents";
 
+type BoxType={
+    id: string;
+    bgcolor: string;
+    bgcount: number;
+    activebox: boolean;
+}
+
+const initialstate: BoxType[]=[
+    {id: "a", bgcolor: "rgb(200,200,200)",bgcount: 0, activebox:false},
+    {id: "b", bgcolor: "rgb(200,200,200)",bgcount: 0, activebox:false},
+    {id: "c", bgcolor: "rgb(200,200,200)",bgcount: 0, activebox:false},
+    
+]
+
 const randomNum = () => Math.floor(Math.random()*256);
     const randomcolor = () => {
         const r = randomNum()
@@ -10,33 +24,30 @@ const randomNum = () => Math.floor(Math.random()*256);
 }
 
 const Squarecomponent = () =>{
+    const [box,setbox] = useState<BoxType[]>(initialstate)
 
-    /* const [color,setcolor] = useState<string>("rgb(0,0,0)")
-    const [count, setcount] = useState(0) */
-    const [box, setbox] = useState({bgcolor: "rgb(0, 0, 0)", bgcount:0})
-    
-    const setboxColor = () => setbox(prev =>({...prev, bgcolor:randomcolor()}));
-    const setBoxCount = () => setbox(prev => ({...prev, bgcount: prev.bgcount +1}))
+    const setboxcount = (id:string) =>{
+        setbox(box.map(b => id === b.id ? {...b, bgcount: b.bgcount + 1, activebox:true} : {...b, activebox:false}))
+    }
 
-    const reset = () =>{
-        return setbox(prev =>({...prev, bgcolor:"rgb(0,0,0)", bgcount:0}))
+    const setboxcolor = () =>{
+        setbox(box.map(b => b.activebox ?({...b, bgcolor:randomcolor()}): b))
+    }
+
+    const resetbox = () =>{
+        setbox(initialstate)
     }
 
 
     {return(
         <main style={{display: "flex", flexDirection: "column", alignItems:"center", justifyContent: "center", gap:"2rem"}}>
-            {/* <div className="box" style={{width: "5rem", height: "5rem", boxShadow: "0 0 10px 3px rgba(0,0,0.5) inset", borderRadius: "10px", background: color, display: "flex", justifyContent: "center", fontSize: "1.1rem"}} onClick={() => setcount(prev => prev+1)}>
-            {count}
-            </div> */}
-            <h3>Szín kód: {box.bgcolor}</h3>
+            <h3>Szín kód: {box.map(b=> b.activebox ? b.bgcolor : "").join("")}</h3>
             <div className="row" style={{display: "flex", gap:"1rem"}}>
-                <BoxComponents color={box.bgcolor} setFn={setBoxCount} count={box.bgcount}/>
-                <BoxComponents color={box.bgcolor} setFn={setBoxCount} count={box.bgcount}/>
-                <BoxComponents color={box.bgcolor} setFn={setBoxCount} count={box.bgcount}/>
+                {box.map(box => <BoxComponents id={box.id} color={box.bgcolor} count={box.bgcount} setFn={()=>setboxcount(box.id)}/>)}
             </div>
             
-                <button onClick={()=>setboxColor()}>Szeretnél színezni? nyomogass meg!</button>
-                <button onClick={reset}> Reset cig</button>
+                <button onClick={setboxcolor}>Szeretnél színezni? nyomogass meg!</button>
+                <button onClick={resetbox}> Reset cig</button>
             
         </main>
     )
